@@ -5,64 +5,116 @@ import numpy as np
 
 from pymongo import MongoClient
 
-# Connect to MongoDB
-cluster = MongoClient("mongodb+srv://sarim:1234@cluster0.azpgb.mongodb.net/ENSF592?retryWrites=true&w=majority")
 
-# Create variable to access database
-db = cluster["ENSF592"]
+class TrafficIncidents:
+    # Create empty dictionaries to be populated with data depending on year
+    incidents_2016 = dict()
+    incidents_2017 = dict()
+    incidents_2018 = dict()
 
-# Create variable to access database collections and use .find() to return as a cursor object
-traffic_incidents = db["Traffic_Incidents"].find()
+    # Buffer that holds second dict in the dict of a dict to create table
+    incidents_2016_buffer = dict()
+    incidents_2017_buffer = dict()
+    incidents_2018_buffer = dict()
 
-# create empty dictionaries to be populated with data based on year
-incidents_2016 = dict()
-incidents_2017 = dict()
-incidents_2018 = dict()
+    # Dictionary that will hold the
+    incident_2016_sum = dict()
+    incident_2017_sum = dict()
+    incident_2018_sum = dict()
 
-# create variables to store the total number of incidents for each year
-total_incidents_2016 = 0
-total_incidents_2017 = 0
-total_incidents_2018 = 0
+    def __init__(self):
 
-# iterate through data collection and add incident information to corresponding dict based on year
-for element in traffic_incidents:
-    if element["id"][:4] == "2016":  # 2016 data
-        incidents_2016[element["INCIDENT INFO"]] = incidents_2016.get(element["INCIDENT INFO"], 0) + 1
-    elif element["id"][:4] == "2017":  # 2017 data
-        incidents_2017[element["INCIDENT INFO"]] = incidents_2017.get(element["INCIDENT INFO"], 0) + 1
-    elif element["id"][:4] == "2018":  # 2018 data
-        incidents_2018[element["INCIDENT INFO"]] = incidents_2018.get(element["INCIDENT INFO"], 0) + 1
-    else:
-        continue
+        self.cluster = MongoClient("mongodb+srv://sarim:1234@cluster0.azpgb.mongodb.net/ENSF592?retryWrites=true&w"
+                                   "=majority")
+        self.db = self.cluster["ENSF592"]
+        self.traffic_incidents = self.db["Traffic_Incidents"].find()
+        self.traffic_incidents_Copy = self.db["Traffic_Incidents"].find()
 
-# Calculate the total number of incidents each year and print to console
-total_incidents_2016 = sum(incidents_2016.values())
-print("Total number of traffic incidents in 2016:", total_incidents_2016)
+    def create_incident_sum_dict(self):
 
-total_incidents_2017 = sum(incidents_2017.values())
-print("Total number of traffic incidents in 2017:", total_incidents_2017)
+        for element in self.traffic_incidents_Copy:
+            if element["id"][:4] == "2016":  # 2016 data
+                self.incident_2016_sum[element["INCIDENT INFO"]] = \
+                    self.incident_2016_sum.get(element["INCIDENT INFO"], 0) + 1
 
-total_incidents_2018 = sum(incidents_2018.values())
-print("Total number of traffic incidents in 2018:", total_incidents_2018)
+            elif element["id"][:4] == "2017":  # 2017 data
+                self.incident_2017_sum[element["INCIDENT INFO"]] = \
+                    self.incident_2017_sum.get(element["INCIDENT INFO"], 0) + 1
 
-# Output the location of the maximum number of incidents and the total number of incidents for a given year
-max_incidents_2016_location = max(incidents_2016, key=incidents_2016.get)
-max_incidents_2016_amount = max(incidents_2016.values())
-print("There were", max_incidents_2016_amount, "incidents at", max_incidents_2016_location, "in 2016")
+            elif element["id"][:4] == "2018":  # 2018 data
+                self.incident_2018_sum[element["INCIDENT INFO"]] = \
+                    self.incident_2018_sum.get(element["INCIDENT INFO"], 0) + 1
 
-max_incidents_2017_location = max(incidents_2017, key=incidents_2017.get)
-max_incidents_2017_amount = max(incidents_2017.values())
-print("There were", max_incidents_2017_amount, "incidents at", max_incidents_2017_location, "in 2017")
+            else:
+                continue
 
-max_incidents_2018_location = max(incidents_2018, key=incidents_2018.get)
-max_incidents_2018_amount = max(incidents_2018.values())
-print("There were", max_incidents_2018_amount, "incidents at", max_incidents_2018_location, "in 2018")
+    def create_incident_table_dict(self):
+        # iterate through data collection and add incident information to corresponding dict based on year
+        for element in self.traffic_incidents:
+            # this variable is only use to skip the fist iteration
+            count = 0
+            for key, value in element.items():
+                # skip the first iteration, since the first iteration is just "_id" in the collection
+                if count != 0:
+                    if element["id"][:4] == "2016":  # 2016 data
+                        if key == 'INCIDENT INFO':
+                            # Assign the total count for each incident
+                            self.incidents_2016_buffer["Sum of Incidents"] = self.incident_2016_sum[value]
+                            self.incidents_2016_buffer[key] = str(value)
+                        elif key != 'id':
+                            # assigning the column header with the row information
+                            self.incidents_2016_buffer[key] = str(value)
+                        # if it is the "ID" column, use this column as the key for "incidents_2016"
+                        else:
+                            # assigning the column header with the row information
+                            self.incidents_2016_buffer[key] = str(value)
+                            # Store the dict into the dict of dict table
+                            self.incidents_2016[value] = self.incidents_2016_buffer.copy()
+
+                    if element["id"][:4] == "2017":  # 2017 data
+                        if key == 'INCIDENT INFO':
+                            # Assign the total count for each incident
+                            self.incidents_2017_buffer["Sum of Incidents"] = self.incident_2017_sum[value]
+                            self.incidents_2017_buffer[key] = str(value)
+                        elif key != "id":
+                            # assigning the column header with the row information
+                            self.incidents_2017_buffer[key] = str(value)
+                        # if it is the "ID" column, use this column as the key for "incidents_2016"
+                        else:
+                            # assigning the column header with the row information
+                            self.incidents_2017_buffer[key] = str(value)
+                            # Store the dict into the dict of dict table
+                            self.incidents_2017[value] = self.incidents_2017_buffer.copy()
+                    if element["id"][:4] == "2018":  # 2018 data
+                        if key == 'INCIDENT INFO':
+                            # Assign the total count for each incident
+                            self.incidents_2018_buffer["Sum of Incidents"] = self.incident_2018_sum[value]
+                            self.incidents_2018_buffer[key] = str(value)
+                        elif key != "id":
+                            # assigning the column header with the row information
+                            self.incidents_2018_buffer[key] = str(value)
+                        # if it is the "ID" column, use this column as the key for "incidents_2016"
+                        else:
+                            # assigning the column header with the row information
+                            self.incidents_2018_buffer[key] = str(value)
+                            # Store the dict into the dict of dict table
+                            self.incidents_2018[value] = self.incidents_2018_buffer.copy()
+
+                # this variable is only use to skip the fist iteration
+                count = count + 1
+
+    def create_incidents_graph(self):
+        # Test creation of line graph
+        plt.plot([2016, 2017, 2018], [sum(self.incident_2016_sum.values()), sum(self.incident_2017_sum.values()),
+                                      sum(self.incident_2018_sum.values())])
+        plt.xticks(np.arange(2016, 2019, 1))
+        plt.ylabel('Volume')
+        plt.xlabel('Year')
+        plt.title('Total Incidents Trend Over 2016-2018')
+        plt.show()
 
 
-# Test creation of line graph
-plt.plot([2016, 2017, 2018], [total_incidents_2016, total_incidents_2017, total_incidents_2018])
-plt.xticks(np.arange(2016, 2019, 1))
-plt.ylabel('Volume')
-plt.xlabel('Year')
-plt.title('Total Incidents Trend Over 2016-2018')
-plt.show()
+# Create graph to test code
+# t_incidents = TrafficIncidents()
+# t_incidents.create_incident_sum_dict()
+# t_incidents.create_incidents_graph()

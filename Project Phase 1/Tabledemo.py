@@ -17,10 +17,16 @@ from pymongo import MongoClient
 trafficIncident = TrafficIncidents()
 trafficIncident.create_incident_sum_dict()
 trafficIncident.create_incident_table_dict()
+trafficIncident.get_coord_2016()
+trafficIncident.get_coord_2017()
+trafficIncident.get_coord_2018()
 
 trafficVolume = TrafficVolume()
 trafficVolume.create_volume_sum_dict()
 trafficVolume.create_volume_table_dict()
+trafficVolume.get_coord_2016()
+trafficVolume.get_coord_2017()
+trafficVolume.get_coord_2018()
 
 
 # set up canvas and title
@@ -181,6 +187,7 @@ def callback_button_Read(event):
         table_volume2017.grid_forget()
         table_volume2018.grid_forget()
         table_incident2016.importData(trafficIncident.incidents_2016)
+        status_display['text'] = "Successfully read from DB"
     elif type_check_accident==True and year_check2017==True:
         table_incident2016.grid_forget()
         table_incident2018.grid_forget()
@@ -188,6 +195,7 @@ def callback_button_Read(event):
         table_volume2017.grid_forget()
         table_volume2018.grid_forget()
         table_incident2017.importData(trafficIncident.incidents_2017)
+        status_display['text'] = "Successfully read from DB"
     elif type_check_accident==True and year_check2018==True:
         table_incident2017.grid_forget()
         table_incident2016.grid_forget()
@@ -195,6 +203,7 @@ def callback_button_Read(event):
         table_volume2017.grid_forget()
         table_volume2018.grid_forget()
         table_incident2018.importData(trafficIncident.incidents_2018)
+        status_display['text'] = "Successfully read from DB"
     elif type_check_trafficvolume == True and year_check2016 == True:
         table_incident2016.grid_forget()
         table_incident2017.grid_forget()
@@ -202,6 +211,7 @@ def callback_button_Read(event):
         table_volume2017.grid_forget()
         table_volume2018.grid_forget()
         table_volume2016.importData(trafficVolume.volume_2016)
+        status_display['text'] = "Successfully read from DB"
     elif type_check_trafficvolume == True and year_check2017 == True:
         table_incident2016.grid_forget()
         table_incident2017.grid_forget()
@@ -209,6 +219,7 @@ def callback_button_Read(event):
         table_volume2016.grid_forget()
         table_volume2018.grid_forget()
         table_volume2017.importData(trafficVolume.volume_2017)
+        status_display['text'] = "Successfully read from DB"
     elif type_check_trafficvolume == True and year_check2018 == True:
         table_incident2016.grid_forget()
         table_incident2017.grid_forget()
@@ -216,7 +227,13 @@ def callback_button_Read(event):
         table_volume2016.grid_forget()
         table_volume2017.grid_forget()
         table_volume2018.importData(trafficVolume.volume_2018)
-    status_display['text'] = "Successfully read from DB"
+        status_display['text'] = "Successfully read from DB"
+    elif button_Year.get() == "" and button_Type.get() != "":
+        status_display['text'] = "Please select the year of report as well"
+    elif button_Type.get() == "" and button_Year.get() != "":
+        status_display['text'] = "Please select the type of report as well"
+    else:
+        status_display['text'] = "Please select type and year of report"
 # Event listener for when the button is clicked
 button_Read.bind("<Button-1>", callback_button_Read)
 
@@ -225,30 +242,65 @@ button_Read.bind("<Button-1>", callback_button_Read)
 def callback_button_Sort(event):
     if type_check_accident == True and year_check2016 == True:
         table_incident2016.sortData(1,0)
+        status_display['text'] = "Successfully Sorted"
     elif type_check_accident == True and year_check2017 == True:
         table_incident2017.sortData(1,0)
+        status_display['text'] = "Successfully Sorted"
     elif type_check_accident == True and year_check2018 == True:
         table_incident2018.sortData(1,0)
+        status_display['text'] = "Successfully Sorted"
     elif type_check_trafficvolume == True and year_check2016 == True:
         table_volume2016.sortData(1,0)
+        status_display['text'] = "Successfully Sorted"
     elif type_check_trafficvolume == True and year_check2017 == True:
         table_volume2017.sortData(1,1)
+        status_display['text'] = "Successfully Sorted"
     elif type_check_trafficvolume == True and year_check2018 == True:
         table_volume2018.sortData(1,1)
-    status_display['text'] = "Successfully Sorted"
+        status_display['text'] = "Successfully Sorted"
+    else:
+        status_display['text'] = "Please select type and year of report"
+
 # Event listener for when the button is clicked
 button_Sort.bind("<Button-1>", callback_button_Sort)
 
 
 # to be implemented for analysis button
 def callback_button_Analysis(event):
-    trafficIncident.create_incidents_graph(window)
-    status_display['text'] = "Successfully Analyzed"
+    if type_check_accident == True:
+        trafficIncident.create_incidents_graph(window)
+        status_display['text'] = "Successfully Analyzed"
+    elif type_check_trafficvolume == True:
+        trafficVolume.create_volume_graph(window)
+        status_display['text'] = "Successfully Analyzed"
+    else:
+        status_display['text'] = "please select type of report first"
+
 button_Analysis.bind("<Button-1>", callback_button_Analysis)
 
 # to be implemented for map button
 def callback_button_Map(event):
-    status_display['text'] = "Successfully Written Map"
+    if type_check_accident == True and year_check2016 == True:
+        trafficIncident.gen_incident_map(trafficIncident.lat_2016,trafficIncident.lng_2016, "2016")
+        status_display['text'] = "Successfully Written Map"
+    elif type_check_accident == True and year_check2017 == True:
+        trafficIncident.gen_incident_map(trafficIncident.lat_2017, trafficIncident.lng_2017, "2017")
+        status_display['text'] = "Successfully Written Map"
+    elif type_check_accident == True and year_check2018 == True:
+        trafficIncident.gen_incident_map(trafficIncident.lat_2018, trafficIncident.lng_2018, "2018")
+        status_display['text'] = "Successfully Written Map"
+    elif type_check_trafficvolume == True and year_check2016 == True:
+        trafficVolume.gen_vol_map(trafficVolume.lat_2016,trafficVolume.lng_2016, "2016" )
+        status_display['text'] = "Successfully Written Map"
+    elif type_check_trafficvolume == True and year_check2017 == True:
+        trafficVolume.gen_vol_map(trafficVolume.lat_2017, trafficVolume.lng_2017, "2017")
+        status_display['text'] = "Successfully Written Map"
+    elif type_check_trafficvolume == True and year_check2018 == True:
+        trafficVolume.gen_vol_map(trafficVolume.lat_2018, trafficVolume.lng_2018, "2018")
+        status_display['text'] = "Successfully Written Map"
+    else:
+        status_display['text'] = "Please select type and year of report"
+
 button_Map.bind("<Button-1>", callback_button_Map)
 
 

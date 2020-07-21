@@ -3,7 +3,12 @@ import dns
 import matplotlib.pyplot as plt
 import numpy as np
 import folium
-
+import matplotlib
+matplotlib.use("TkAgg")
+import tkinter as tk
+from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure
 from pymongo import MongoClient
 
 
@@ -113,15 +118,18 @@ class TrafficIncidents:
                 # this variable is only use to skip the fist iteration
                 count = count + 1
 
-    def create_incidents_graph(self):
+    def create_incidents_graph(self,parent):
         # Test creation of line graph
+        f = Figure(figsize=(5, 5), dpi=100)
+        plt = f.add_subplot(111)
         plt.plot([2016, 2017, 2018], [sum(self.incident_2016_sum.values()), sum(self.incident_2017_sum.values()),
                                       sum(self.incident_2018_sum.values())])
-        plt.xticks(np.arange(2016, 2019, 1))
-        plt.ylabel('Volume')
-        plt.xlabel('Year')
-        plt.title('Total Incidents Trend Over 2016-2018')
-        plt.show()
+        plt.set_xticks(np.arange(2016, 2019, 1))
+        plt.set_ylabel('Volume')
+        plt.set_xlabel('Year')
+        plt.set_title('Total Incidents Trend Over 2016-2018')
+        canvas = FigureCanvasTkAgg(f, parent)
+        canvas.get_tk_widget().grid(row=0, column=1, sticky="nsew")
 
     def get_coord_2016(self):
         max_seg = max(self.incident_2016_sum, key=self.incident_2016_sum.get)
@@ -147,12 +155,12 @@ class TrafficIncidents:
                 self.lng_2018 = element['Longitude']
                 self.lat_2018 = element['Latitude']
 
-    def gen_incident_map(self, latitude=0.0, longitude=0.0):
+    def gen_incident_map(self, latitude=0.0, longitude=0.0, year = ""):
         my_map = folium.Map(location=[latitude, longitude], zoom_start=15)
 
         folium.Marker([latitude, longitude], popup='Maximum Traffic Incidents').add_to(my_map)
 
-        my_map.save('Incident_Map.html')
+        my_map.save('Incident_Map' + year + '.html')
 
 
 # Code to test some methods

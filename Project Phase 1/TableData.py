@@ -58,11 +58,5 @@ class App(Frame):
         self.table.redraw()
 
 
-# window = tk.Tk()
-# window.title("Don and Sarim beast project")
-# test = App(window)
-# test.importData(testing)
-# test.pack()
-# window.mainloop()
 
 

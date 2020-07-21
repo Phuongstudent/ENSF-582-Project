@@ -93,7 +93,7 @@ button_Analysis.grid(row=4, column=0, sticky="ew", padx=10)
 # "Map" button
 button_Map = tk.Button(master = frame_a,text = "Map", width = 25, height = 5)
 # position as sixth row within grid, extend horizontally
-button_Analysis.grid(row=5, column=0, sticky="ew", padx=10)
+button_Map.grid(row=5, column=0, sticky="ew", padx=10)
 
 # "Status" label
 status = tk.Label(master = frame_a,text="Status:")
@@ -101,7 +101,7 @@ status = tk.Label(master = frame_a,text="Status:")
 status.grid(row=6, column=0, sticky="ew", padx=10)
 
 # "Status" display
-status_display = tk.Label(master = frame_a,text="Success!", foreground = "red", background = "white")
+status_display = tk.Label(master = frame_a,text="", foreground = "red", background = "white")
 # position as eighth row within grid, extend horizontally
 status_display.grid(row=7, column=0, sticky="ew", padx=10)
 
@@ -216,6 +216,7 @@ def callback_button_Read(event):
         table_volume2016.grid_forget()
         table_volume2017.grid_forget()
         table_volume2018.importData(trafficVolume.volume_2018)
+    status_display['text'] = "Successfully read from DB"
 # Event listener for when the button is clicked
 button_Read.bind("<Button-1>", callback_button_Read)
 
@@ -234,6 +235,7 @@ def callback_button_Sort(event):
         table_volume2017.sortData(1,1)
     elif type_check_trafficvolume == True and year_check2018 == True:
         table_volume2018.sortData(1,1)
+    status_display['text'] = "Successfully Sorted"
 # Event listener for when the button is clicked
 button_Sort.bind("<Button-1>", callback_button_Sort)
 
@@ -241,11 +243,12 @@ button_Sort.bind("<Button-1>", callback_button_Sort)
 # to be implemented for analysis button
 def callback_button_Analysis(event):
     trafficIncident.create_incidents_graph(window)
+    status_display['text'] = "Successfully Analyzed"
 button_Analysis.bind("<Button-1>", callback_button_Analysis)
 
 # to be implemented for map button
 def callback_button_Map(event):
-    print("New Element Selected")
+    status_display['text'] = "Successfully Written Map"
 button_Map.bind("<Button-1>", callback_button_Map)
 
 

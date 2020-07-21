@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import folium
 import matplotlib
+
 matplotlib.use("TkAgg")
 import tkinter as tk
 from tkinter import ttk
@@ -118,16 +119,16 @@ class TrafficIncidents:
                 # this variable is only use to skip the fist iteration
                 count = count + 1
 
-    def create_incidents_graph(self,parent):
+    def create_incidents_graph(self, parent):
         # Test creation of line graph
         f = Figure(figsize=(5, 5), dpi=100)
         plt = f.add_subplot(111)
-        plt.plot([2016, 2017, 2018], [sum(self.incident_2016_sum.values()), sum(self.incident_2017_sum.values()),
-                                      sum(self.incident_2018_sum.values())])
+        plt.plot([2016, 2017, 2018], [max(self.incident_2016_sum.values()), max(self.incident_2017_sum.values()),
+                                      max(self.incident_2018_sum.values())])
         plt.set_xticks(np.arange(2016, 2019, 1))
         plt.set_ylabel('Volume')
         plt.set_xlabel('Year')
-        plt.set_title('Total Incidents Trend Over 2016-2018')
+        plt.set_title('Maximum Traffic Incidents Trend Over 2016-2018')
         canvas = FigureCanvasTkAgg(f, parent)
         canvas.get_tk_widget().grid(row=0, column=1, sticky="nsew")
 
@@ -155,7 +156,7 @@ class TrafficIncidents:
                 self.lng_2018 = element['Longitude']
                 self.lat_2018 = element['Latitude']
 
-    def gen_incident_map(self, latitude=0.0, longitude=0.0, year = ""):
+    def gen_incident_map(self, latitude=0.0, longitude=0.0, year=""):
         my_map = folium.Map(location=[latitude, longitude], zoom_start=15)
 
         folium.Marker([latitude, longitude], popup='Maximum Traffic Incidents').add_to(my_map)
@@ -164,9 +165,9 @@ class TrafficIncidents:
 
 
 # Code to test some methods
-# t_incidents = TrafficIncidents()
-# t_incidents.create_incident_sum_dict()
-# t_incidents.create_incidents_graph()
-# t_incidents.get_coord_2017()
-# t_incidents.gen_incident_map(t_incidents.lat_2017, t_incidents.lng_2017)
+# t = TrafficIncidents()
+# t.create_incident_sum_dict()
+# t.create_incidents_graph()
+# t.get_coord_2017()
+# t.gen_incident_map(t_incidents.lat_2017, t_incidents.lng_2017)
 

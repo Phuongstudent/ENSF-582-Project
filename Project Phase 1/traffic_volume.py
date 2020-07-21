@@ -136,8 +136,8 @@ class TrafficVolume:
         f = Figure(figsize = (5,5), dpi =100)
 
         plt = f.add_subplot(111)
-        plt.plot([2016, 2017, 2018], [sum(self.volume_2016_sum.values()), sum(self.volume_2017_sum.values()),
-                                      sum(self.volume_2018_sum.values())])
+        plt.plot([2016, 2017, 2018], [max(self.volume_2016_sum.values()), max(self.volume_2017_sum.values()),
+                                      max(self.volume_2018_sum.values())])
         plt.set_xticks(np.arange(2016, 2019, 1))
         plt.set_ylabel('Volume')
         plt.set_xlabel('Year')
@@ -200,4 +200,4 @@ class TrafficVolume:
 # vol.create_volume_sum_dict()
 # vol.create_volume_graph()
 # vol.get_coord_2017()
-# vol.gen_vol_map(vol.lat_2017, vol.lng_2017)
+# vol.gen_vol_map(vol.lat_2017,vol.lng_2017)

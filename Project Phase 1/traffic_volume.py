@@ -189,5 +189,5 @@ class TrafficVolume:
 # vol = TrafficVolume()
 # vol.create_volume_sum_dict()
 # vol.create_volume_graph()
-# vol.get_coord_2018()
-# vol.gen_vol_map(vol.lat_2018, vol.lng_2018)
+# vol.get_coord_2017()
+# vol.gen_vol_map(vol.lat_2017, vol.lng_2017)

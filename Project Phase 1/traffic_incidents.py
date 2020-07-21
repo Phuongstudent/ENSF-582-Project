@@ -162,12 +162,3 @@ class TrafficIncidents:
         folium.Marker([latitude, longitude], popup='Maximum Traffic Incidents').add_to(my_map)
 
         my_map.save('Incident_Map' + year + '.html')
-
-
-# Code to test some methods
-# t = TrafficIncidents()
-# t.create_incident_sum_dict()
-# t.create_incidents_graph()
-# t.get_coord_2017()
-# t.gen_incident_map(t_incidents.lat_2017, t_incidents.lng_2017)
-

@@ -193,11 +193,3 @@ class TrafficVolume:
         folium.Marker([latitude, longitude], popup='Maximum Traffic Volume').add_to(my_map)
 
         my_map.save('Volume_Map' + year + '.html')
-
-
-# Code to test some output
-# vol = TrafficVolume()
-# vol.create_volume_sum_dict()
-# vol.create_volume_graph()
-# vol.get_coord_2017()
-# vol.gen_vol_map(vol.lat_2017,vol.lng_2017)

@@ -8,10 +8,15 @@ from pymongo import MongoClient
 
 class TrafficVolume:
 
-    # create variables to store total traffic volume for each year
-    total_volume_2016 = 0
-    total_volume_2017 = 0
-    total_volume_2018 = 0
+    # create variables to store longitude and latitude of areas with greatest volume per year
+    lng_2016 = None
+    lat_2016 = None
+
+    lng_2017 = None
+    lat_2017 = None
+
+    lng_2018 = None
+    lat_2018 = None
 
     # Create empty dictionaries to be populated with data depending on year
     volume_2016 = dict()
@@ -23,6 +28,11 @@ class TrafficVolume:
     volume_2017_buffer = dict()
     volume_2018_buffer = dict()
 
+    # Dictionary that will sum the traffic volume for similar locations
+    volume_2016_sum = dict()
+    volume_2017_sum = dict()
+    volume_2018_sum = dict()
+
     def __init__(self):
 
         self.cluster = MongoClient("mongodb+srv://sarim:1234@cluster0.azpgb.mongodb.net/ENSF592?retryWrites=true&w"
@@ -32,82 +42,145 @@ class TrafficVolume:
         self.traffic_volume_2017 = self.db["2017_Traffic_Volume_Flow"]
         self.traffic_volume_2018 = self.db["Traffic_Volumes_for_2018"]
 
-    def calculate_total_volume(self):
-        # calculate total volume of vehicles for each year and print the total volume for that year
-        # Need to use .find() method to return a cursor object,allowing iteration
-        for result in self.traffic_volume_2016.find():
-            self.total_volume_2016 += result["volume"]
+    def create_volume_sum_dict(self):
+        for element in self.traffic_volume_2016.find():
+            self.volume_2016_sum[element['secname']] = self.volume_2016_sum.get(element['secname'], 0) + \
+                                                       element['volume']
 
-        for result in self.traffic_volume_2017.find():
-            self.total_volume_2017 += result["volume"]
+        for element in self.traffic_volume_2017.find():
+            self.volume_2017_sum[element['segment_name']] = self.volume_2017_sum.get(element['segment_name'], 0) + \
+                                                       element['volume']
 
-        for result in self.traffic_volume_2018.find():
-            self.total_volume_2018 += result["VOLUME"]
+        for element in self.traffic_volume_2018.find():
+            self.volume_2018_sum[element['SECNAME']] = self.volume_2018_sum.get(element['SECNAME'], 0) + \
+                                                            element['VOLUME']
 
     def create_volume_table_dict(self):
-        # iterate through data collection and add incident information to corresponding dict based on year
-        for element in self.traffic_volume_2016:
+        # this variable is only use to enumerate the dictionary
+        i = 0
+        # iterate through data collection and add incident information to corresponding dict based on 2016
+        for element in self.traffic_volume_2016.find():
             # this variable is only use to skip the fist iteration
             count = 0
+
             for key, value in element.items():
-                # skip the first iteration, since the first iteration is just "_id" in the collection
                 if count != 0:
-                    if key == 'INCIDENT INFO':
+                    if key == 'secname':
                         # Assign the total count for each incident
-                        self.incidents_2016_buffer["Sum of Incidents"] = self.incident_2016_sum[value]
-                        self.incidents_2016_buffer[key] = str(value)
-                    elif key != 'id':
-                        # assigning the column header with the row information
-                        self.incidents_2016_buffer[key] = str(value)
+                        self.volume_2016_buffer["Sum of Volume"] = self.volume_2016_sum[value]
+                        self.volume_2016_buffer[key] = str(value)
                     # if it is the "ID" column, use this column as the key for "incidents_2016"
                     else:
                         # assigning the column header with the row information
-                        self.incidents_2016_buffer[key] = str(value)
-                        # Store the dict into the dict of dict table
-                        self.incidents_2016[value] = self.incidents_2016_buffer.copy()
+                        self.volume_2016_buffer[key] = str(value)
 
-                    if element["id"][:4] == "2017":  # 2017 data
-                        if key == 'INCIDENT INFO':
-                            # Assign the total count for each incident
-                            self.incidents_2017_buffer["Sum of Incidents"] = self.incident_2017_sum[value]
-                            self.incidents_2017_buffer[key] = str(value)
-                        elif key != "id":
-                            # assigning the column header with the row information
-                            self.incidents_2017_buffer[key] = str(value)
-                        # if it is the "ID" column, use this column as the key for "incidents_2016"
-                        else:
-                            # assigning the column header with the row information
-                            self.incidents_2017_buffer[key] = str(value)
-                            # Store the dict into the dict of dict table
-                            self.incidents_2017[value] = self.incidents_2017_buffer.copy()
-                    if element["id"][:4] == "2018":  # 2018 data
-                        if key == 'INCIDENT INFO':
-                            # Assign the total count for each incident
-                            self.incidents_2018_buffer["Sum of Incidents"] = self.incident_2018_sum[value]
-                            self.incidents_2018_buffer[key] = str(value)
-                        elif key != "id":
-                            # assigning the column header with the row information
-                            self.incidents_2018_buffer[key] = str(value)
-                        # if it is the "ID" column, use this column as the key for "incidents_2016"
-                        else:
-                            # assigning the column header with the row information
-                            self.incidents_2018_buffer[key] = str(value)
-                            # Store the dict into the dict of dict table
-                            self.incidents_2018[value] = self.incidents_2018_buffer.copy()
-
-                # this variable is only use to skip the fist iteration
                 count = count + 1
+            # Store the dict into the dict of dict table
+            self.volume_2016[i] = self.volume_2016_buffer.copy()
+            i= i +1
+
+        # this variable is only use to enumerate the dictionary
+        i = 0
+        # iterate through data collection and add incident information to corresponding dict based on 2017
+        for element in self.traffic_volume_2017.find():
+            # this variable is only use to skip the fist iteration
+            count = 0
+
+            for key, value in element.items():
+                if count != 0:
+                    if key == 'segment_name':
+                        # Assign the total count for each incident
+                        self.volume_2017_buffer["Sum of Volume"] = self.volume_2017_sum[value]
+                        self.volume_2017_buffer[key] = str(value)
+                    # if it is the "ID" column, use this column as the key for "incidents_2016"
+                    else:
+                        # assigning the column header with the row information
+                        self.volume_2017_buffer[key] = str(value)
+
+                count = count + 1
+            # Store the dict into the dict of dict table
+            self.volume_2017[i] = self.volume_2017_buffer.copy()
+            i = i + 1
+
+        # this variable is only use to enumerate the dictionary
+        i = 0
+        # iterate through data collection and add incident information to corresponding dict based on 2018
+        for element in self.traffic_volume_2018.find():
+            # this variable is only use to skip the fist iteration
+            count = 0
+
+            for key, value in element.items():
+                if count != 0:
+                    if key == 'SECNAME':
+                        # Assign the total count for each incident
+                        self.volume_2018_buffer["Sum of Volume"] = self.volume_2018_sum[value]
+                        self.volume_2018_buffer[key] = str(value)
+                    # if it is the "ID" column, use this column as the key for "incidents_2016"
+                    else:
+                        # assigning the column header with the row information
+                        self.volume_2018_buffer[key] = str(value)
+
+                count = count + 1
+            # Store the dict into the dict of dict table
+            self.volume_2018[i] = self.volume_2018_buffer.copy()
+            i = i + 1
 
     def create_volume_graph(self):
         # Test creation of line graph
-        plt.plot([2016, 2017, 2018], [self.total_volume_2016, self.total_volume_2017, self.total_volume_2018])
+        plt.plot([2016, 2017, 2018], [sum(self.volume_2016_sum.values()), sum(self.volume_2017_sum.values()),
+                                      sum(self.volume_2018_sum.values())])
         plt.xticks(np.arange(2016, 2019, 1))
         plt.ylabel('Volume')
         plt.xlabel('Year')
         plt.title('Maximum Traffic Volume Trend Over 2016-2018')
         plt.show()
 
+    def get_coord_2016(self):
+        max_seg = max(self.volume_2016_sum, key=self.volume_2016_sum.get)
 
-vol = TrafficVolume()
-vol.calculate_total_volume()
-vol.create_volume_graph()
+        for element in self.traffic_volume_2016.find():
+            if element['secname'] == max_seg:
+                temp = element['the_geom']
+
+        lst = temp.split(', ')
+        t = lst[1]
+        lst2 = t.split()
+
+        self.lng_2016 = float(lst2[0])
+        self.lat_2016 = float(lst2[1])
+
+    def get_coord_2017(self):
+        max_seg = max(self.volume_2017_sum, key=self.volume_2017_sum.get)
+
+        for element in self.traffic_volume_2017.find():
+            if element['segment_name'] == max_seg:
+                temp = element['the_geom']
+
+        lst = temp.split(', ')
+        t = lst[1]
+        lst2 = t.split()
+
+        self.lng_2017 = float(lst2[0])
+        self.lat_2017 = float(lst2[1])
+
+    def get_coord_2018(self):
+        max_seg = max(self.volume_2018_sum, key=self.volume_2018_sum.get)
+
+        for element in self.traffic_volume_2018.find():
+            if element['SECNAME'] == max_seg:
+                temp = element['multilinestring']
+
+        lst = temp.split(', ')
+        t = lst[1]
+        lst2 = t.split()
+
+        self.lng_2018 = float(lst2[0])
+        self.lat_2018 = float(lst2[1])
+
+
+# vol = TrafficVolume()
+# vol.create_volume_sum_dict()
+# vol.create_volume_graph()
+
+
+

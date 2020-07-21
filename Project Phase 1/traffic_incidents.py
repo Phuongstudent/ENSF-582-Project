@@ -7,6 +7,16 @@ from pymongo import MongoClient
 
 
 class TrafficIncidents:
+    # create variables to store longitude and latitude of areas with greatest volume per year
+    lng_2016 = None
+    lat_2016 = None
+
+    lng_2017 = None
+    lat_2017 = None
+
+    lng_2018 = None
+    lat_2018 = None
+
     # Create empty dictionaries to be populated with data depending on year
     incidents_2016 = dict()
     incidents_2017 = dict()
@@ -17,7 +27,7 @@ class TrafficIncidents:
     incidents_2017_buffer = dict()
     incidents_2018_buffer = dict()
 
-    # Dictionary that will hold the
+    # Dictionary that will hold the sum of traffic incidents for the same location per year
     incident_2016_sum = dict()
     incident_2017_sum = dict()
     incident_2018_sum = dict()
@@ -27,12 +37,11 @@ class TrafficIncidents:
         self.cluster = MongoClient("mongodb+srv://sarim:1234@cluster0.azpgb.mongodb.net/ENSF592?retryWrites=true&w"
                                    "=majority")
         self.db = self.cluster["ENSF592"]
-        self.traffic_incidents = self.db["Traffic_Incidents"].find()
-        self.traffic_incidents_Copy = self.db["Traffic_Incidents"].find()
+        self.traffic_incidents = self.db["Traffic_Incidents"]
 
     def create_incident_sum_dict(self):
 
-        for element in self.traffic_incidents_Copy:
+        for element in self.traffic_incidents.find():
             if element["id"][:4] == "2016":  # 2016 data
                 self.incident_2016_sum[element["INCIDENT INFO"]] = \
                     self.incident_2016_sum.get(element["INCIDENT INFO"], 0) + 1
@@ -50,7 +59,7 @@ class TrafficIncidents:
 
     def create_incident_table_dict(self):
         # iterate through data collection and add incident information to corresponding dict based on year
-        for element in self.traffic_incidents:
+        for element in self.traffic_incidents.find():
             # this variable is only use to skip the fist iteration
             count = 0
             for key, value in element.items():
@@ -113,8 +122,39 @@ class TrafficIncidents:
         plt.title('Total Incidents Trend Over 2016-2018')
         plt.show()
 
+    def get_coord_2016(self):
+        max_seg = max(self.incident_2016_sum, key=self.incident_2016_sum.get)
+
+        for element in self.traffic_incidents.find():
+            if element['id'][:4] == '2016' and element['INCIDENT INFO'] == max_seg:
+                self.lng_2016 = element['Longitude']
+                self.lat_2016 = element['Latitude']
+
+        print('Long16:', self.lng_2016, 'Lat:', self.lat_2016)
+
+    def get_coord_2017(self):
+        max_seg = max(self.incident_2017_sum, key=self.incident_2017_sum.get)
+
+        for element in self.traffic_incidents.find():
+            if element['id'][:4] == '2017' and element['INCIDENT INFO'] == max_seg:
+                self.lng_2017 = element['Longitude']
+                self.lat_2017 = element['Latitude']
+
+        print('Long17:', self.lng_2017, 'Lat:', self.lat_2017)
+
+    def get_coord_2018(self):
+        max_seg = max(self.incident_2018_sum, key=self.incident_2018_sum.get)
+
+        for element in self.traffic_incidents.find():
+            if element['id'][:4] == '2018' and element['INCIDENT INFO'] == max_seg:
+                self.lng_2018 = element['Longitude']
+                self.lat_2018 = element['Latitude']
+
+        print('Long18:', self.lng_2018, 'Lat:', self.lat_2018)
+
 
 # Create graph to test code
 # t_incidents = TrafficIncidents()
 # t_incidents.create_incident_sum_dict()
 # t_incidents.create_incidents_graph()
+

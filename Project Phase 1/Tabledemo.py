@@ -1,5 +1,6 @@
 from tkintertable import TableCanvas, TableModel
 from tkinter import *
+from tkinter import ttk
 import random
 from collections import OrderedDict
 import pymongo
@@ -9,12 +10,17 @@ import numpy as np
 import tkinter as tk
 from TableData import App
 from traffic_incidents import TrafficIncidents
+from traffic_volume import TrafficVolume
 from pymongo import MongoClient
 
 
 trafficIncident = TrafficIncidents()
 trafficIncident.create_incident_sum_dict()
 trafficIncident.create_incident_table_dict()
+
+trafficVolume = TrafficVolume()
+trafficVolume.create_volume_sum_dict()
+trafficVolume.create_volume_table_dict()
 
 
 # set up canvas and title
@@ -34,16 +40,16 @@ frame_b = tk.Frame(master = frame_a)
 # Frame within frame_a to hold 1 label and 1 combobox
 frame_c = tk.Frame(master = frame_a)
 
+# # frame to handle the tables and graph
+# frame_table = tk.Frame(master = window)
+# frame_table.grid(row=0, column=1, sticky="nsew")
+
 # Right frame initially
-frame_d = tk.Frame()
+frame_d = tk.Frame(window)
 # "Status" display
 initial_display = tk.Label(master = frame_d, text="Please choose the 'Type' and 'Year' of the report", foreground = "red", background = "white", width = 100, height = 50)
 initial_display.pack(side = tk.TOP)
 frame_d.grid(row=0, column=1, sticky="nsew")
-
-
-
-
 
 
 # Label for "Type" button
@@ -102,21 +108,29 @@ status_display.grid(row=7, column=0, sticky="ew", padx=10)
 # Situate frame_a to the left, first row and column extend vertically
 frame_a.grid(row=0, column=0, sticky="ns")
 
-# initialize table
 
+# initialize table
 # Incident 2016
 table_incident2016 = App(window)
 
 # Incident 2017
 table_incident2017 = App(window)
-# table_incident2017.importData(trafficIncident.incidents_2017)
+
 # Incident 2018
 table_incident2018 = App(window)
-# table_incident2018.importData(trafficIncident.incidents_2018)
 
-#Volume 2016
-# table_volume2016 = App(window)
-# table_volume2016.importData(trafficIncident.incidents_2016)
+
+# Volume 2016
+table_volume2016 = App(window)
+
+# Volume 2017
+table_volume2017 = App(window)
+
+# Volume 2018
+table_volume2018 = App(window)
+
+
+#table_volume2016.importData(trafficIncident.incidents_2016)
 
 #flag variables
 type_check_accident = False
@@ -163,40 +177,76 @@ def callback_button_Read(event):
     if type_check_accident==True and year_check2016==True:
         table_incident2017.grid_forget()
         table_incident2018.grid_forget()
+        table_volume2016.grid_forget()
+        table_volume2017.grid_forget()
+        table_volume2018.grid_forget()
         table_incident2016.importData(trafficIncident.incidents_2016)
     elif type_check_accident==True and year_check2017==True:
         table_incident2016.grid_forget()
         table_incident2018.grid_forget()
+        table_volume2016.grid_forget()
+        table_volume2017.grid_forget()
+        table_volume2018.grid_forget()
         table_incident2017.importData(trafficIncident.incidents_2017)
     elif type_check_accident==True and year_check2018==True:
         table_incident2017.grid_forget()
         table_incident2016.grid_forget()
+        table_volume2016.grid_forget()
+        table_volume2017.grid_forget()
+        table_volume2018.grid_forget()
         table_incident2018.importData(trafficIncident.incidents_2018)
+    elif type_check_trafficvolume == True and year_check2016 == True:
+        table_incident2016.grid_forget()
+        table_incident2017.grid_forget()
+        table_incident2018.grid_forget()
+        table_volume2017.grid_forget()
+        table_volume2018.grid_forget()
+        table_volume2016.importData(trafficVolume.volume_2016)
+    elif type_check_trafficvolume == True and year_check2017 == True:
+        table_incident2016.grid_forget()
+        table_incident2017.grid_forget()
+        table_incident2018.grid_forget()
+        table_volume2016.grid_forget()
+        table_volume2018.grid_forget()
+        table_volume2017.importData(trafficVolume.volume_2017)
+    elif type_check_trafficvolume == True and year_check2018 == True:
+        table_incident2016.grid_forget()
+        table_incident2017.grid_forget()
+        table_incident2018.grid_forget()
+        table_volume2016.grid_forget()
+        table_volume2017.grid_forget()
+        table_volume2018.importData(trafficVolume.volume_2018)
 # Event listener for when the button is clicked
 button_Read.bind("<Button-1>", callback_button_Read)
 
 
 # Callbacks function for Sort Button
 def callback_button_Sort(event):
-    table_incident2016.sortData(1)
-    table_incident2017.sortData(1)
-    table_incident2018.sortData(1)
+    if type_check_accident == True and year_check2016 == True:
+        table_incident2016.sortData(1,0)
+    elif type_check_accident == True and year_check2017 == True:
+        table_incident2017.sortData(1,0)
+    elif type_check_accident == True and year_check2018 == True:
+        table_incident2018.sortData(1,0)
+    elif type_check_trafficvolume == True and year_check2016 == True:
+        table_volume2016.sortData(1,0)
+    elif type_check_trafficvolume == True and year_check2017 == True:
+        table_volume2017.sortData(1,1)
+    elif type_check_trafficvolume == True and year_check2018 == True:
+        table_volume2018.sortData(1,1)
 # Event listener for when the button is clicked
 button_Sort.bind("<Button-1>", callback_button_Sort)
 
 
 # to be implemented for analysis button
 def callback_button_Analysis(event):
-    print("New Element Selected")
+    trafficIncident.create_incidents_graph(window)
 button_Analysis.bind("<Button-1>", callback_button_Analysis)
 
 # to be implemented for map button
 def callback_button_Map(event):
     print("New Element Selected")
 button_Map.bind("<Button-1>", callback_button_Map)
-
-
-
 
 
 # Keep listening for events

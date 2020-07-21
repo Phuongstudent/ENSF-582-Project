@@ -2,6 +2,7 @@ from tkintertable import TableCanvas, TableModel
 from tkinter import *
 import tkinter as tk
 
+
 # Class in charge of creating, displaying and manipulating table
 class App(Frame):
     """Basic test frame for the table"""
@@ -52,8 +53,8 @@ class App(Frame):
         self.table.show()
         f.grid(row=0, column=1, sticky="nsew")
 
-    def sortData(self,l):
-        self.table.sortTable(reverse=l)
+    def sortData(self,l,c):
+        self.table.sortTable(reverse=l, columnIndex= c)
         self.table.redraw()
 
 

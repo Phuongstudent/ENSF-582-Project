@@ -2,6 +2,7 @@ import pymongo
 import dns
 import matplotlib.pyplot as plt
 import numpy as np
+import folium
 
 from pymongo import MongoClient
 
@@ -130,8 +131,6 @@ class TrafficIncidents:
                 self.lng_2016 = element['Longitude']
                 self.lat_2016 = element['Latitude']
 
-        print('Long16:', self.lng_2016, 'Lat:', self.lat_2016)
-
     def get_coord_2017(self):
         max_seg = max(self.incident_2017_sum, key=self.incident_2017_sum.get)
 
@@ -139,8 +138,6 @@ class TrafficIncidents:
             if element['id'][:4] == '2017' and element['INCIDENT INFO'] == max_seg:
                 self.lng_2017 = element['Longitude']
                 self.lat_2017 = element['Latitude']
-
-        print('Long17:', self.lng_2017, 'Lat:', self.lat_2017)
 
     def get_coord_2018(self):
         max_seg = max(self.incident_2018_sum, key=self.incident_2018_sum.get)
@@ -150,11 +147,18 @@ class TrafficIncidents:
                 self.lng_2018 = element['Longitude']
                 self.lat_2018 = element['Latitude']
 
-        print('Long18:', self.lng_2018, 'Lat:', self.lat_2018)
+    def gen_incident_map(self, latitude=0.0, longitude=0.0):
+        my_map = folium.Map(location=[latitude, longitude], zoom_start=15)
+
+        folium.Marker([latitude, longitude], popup='Maximum Traffic Incidents').add_to(my_map)
+
+        my_map.save('Incident_Map.html')
 
 
-# Create graph to test code
+# Code to test some methods
 # t_incidents = TrafficIncidents()
 # t_incidents.create_incident_sum_dict()
 # t_incidents.create_incidents_graph()
+# t_incidents.get_coord_2017()
+# t_incidents.gen_incident_map(t_incidents.lat_2017, t_incidents.lng_2017)
 

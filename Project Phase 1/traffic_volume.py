@@ -2,12 +2,12 @@ import pymongo
 import dns
 import matplotlib.pyplot as plt
 import numpy as np
+import folium
 
 from pymongo import MongoClient
 
 
 class TrafficVolume:
-
     # create variables to store longitude and latitude of areas with greatest volume per year
     lng_2016 = None
     lat_2016 = None
@@ -49,11 +49,11 @@ class TrafficVolume:
 
         for element in self.traffic_volume_2017.find():
             self.volume_2017_sum[element['segment_name']] = self.volume_2017_sum.get(element['segment_name'], 0) + \
-                                                       element['volume']
+                                                            element['volume']
 
         for element in self.traffic_volume_2018.find():
             self.volume_2018_sum[element['SECNAME']] = self.volume_2018_sum.get(element['SECNAME'], 0) + \
-                                                            element['VOLUME']
+                                                       element['VOLUME']
 
     def create_volume_table_dict(self):
         # this variable is only use to enumerate the dictionary
@@ -77,7 +77,7 @@ class TrafficVolume:
                 count = count + 1
             # Store the dict into the dict of dict table
             self.volume_2016[i] = self.volume_2016_buffer.copy()
-            i= i +1
+            i = i + 1
 
         # this variable is only use to enumerate the dictionary
         i = 0
@@ -177,10 +177,17 @@ class TrafficVolume:
         self.lng_2018 = float(lst2[0])
         self.lat_2018 = float(lst2[1])
 
+    def gen_vol_map(self, latitude=0.0, longitude=0.0):
+        my_map = folium.Map(location=[latitude, longitude], zoom_start=15)
 
+        folium.Marker([latitude, longitude], popup='Maximum Traffic Volume').add_to(my_map)
+
+        my_map.save('Volume_Map.html')
+
+
+# Code to test some output
 # vol = TrafficVolume()
 # vol.create_volume_sum_dict()
 # vol.create_volume_graph()
-
-
-
+# vol.get_coord_2018()
+# vol.gen_vol_map(vol.lat_2018, vol.lng_2018)
